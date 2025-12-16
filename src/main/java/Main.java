@@ -1,3 +1,4 @@
+import controllers.DisplayController;
 import framestyle.ThinFrameStyle;
 import tuic.*;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class Main {
 
@@ -62,10 +64,20 @@ public class Main {
             throw new RuntimeException(e);
         }
 
+        Scanner scanner = new Scanner(System.in);
+
         DisplayLoader displayLoader = new DisplayLoader();
         TUIC display = displayLoader.load();
+        DisplayController displayController = displayLoader.getController();
 
         System.out.println(String.join("\n", display.draw()));
+
+        while (scanner.hasNextLine()) {
+            displayController.addHistoryEntry(scanner.nextLine());
+
+            System.out.println(String.join("\n", display.draw()));
+        }
+
     }
 
     private static boolean tryParsing(String[] args) {

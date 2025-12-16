@@ -34,7 +34,7 @@ public class FrameTUIC extends TUIC {
 
     @Override
     public int getWidth() {
-        return contents.getPaddedWidth() + 2;
+        return contents.getWidth() + 2;
     }
 
     public FrameStyle getFrameStyle() {
@@ -47,7 +47,7 @@ public class FrameTUIC extends TUIC {
 
     @Override
     public int getHeight() {
-        return contents.getPaddedHeight() + 2;
+        return contents.getHeight() + 2;
     }
 
     @Override
@@ -60,12 +60,6 @@ public class FrameTUIC extends TUIC {
         if (contentLines.length == 0) {
             return new String[0];
         }
-
-        for (int i = 0; i < getPadding(); i++) {
-            result.append(" ".repeat(getPaddedWidth())).append("\n");
-        }
-
-        result.append(" ".repeat(getPadding()));
 
         result.append(frameStyle.getTopLeftCorner());
 
@@ -80,46 +74,32 @@ public class FrameTUIC extends TUIC {
                 result.append(frameStyle.getHorizontalLine());
             default:
                 result.append(frameStyle.getHorizontalLine());
-                if (title.length() > contents.getPaddedWidth() - 2) {
-                    result.append(title, 0, contents.getPaddedWidth() - 3).append("…");
+                if (title.length() > contents.getWidth() - 2) {
+                    result.append(title, 0, contents.getWidth() - 3).append("…");
                 }
                 else {
                     result.append(title);
-                    result.append(String.valueOf(frameStyle.getHorizontalLine()).repeat(contents.getPaddedWidth() - title.length() - 2));
+                    result.append(String.valueOf(frameStyle.getHorizontalLine()).repeat(contents.getWidth() - title.length() - 2));
                 }
                 result.append(frameStyle.getHorizontalLine());
         }
 
         result.append(frameStyle.getTopRightCorner());
 
-        result.append(" ".repeat(getPadding()));
-
         result.append("\n");
 
         for (String line : contentLines) {
-
-            result.append(" ".repeat(getPadding()));
             result.append(frameStyle.getVerticalLine());
             result.append(line);
             result.append(frameStyle.getVerticalLine());
-            result.append(" ".repeat(getPadding()));
             result.append("\n");
         }
-
-        result.append(" ".repeat(getPadding()));
 
         result.append(frameStyle.getBottomLeftCorner());
-        result.append(String.valueOf(frameStyle.getHorizontalLine()).repeat(Math.max(0, contents.getPaddedWidth())));
+        result.append(String.valueOf(frameStyle.getHorizontalLine()).repeat(Math.max(0, contents.getWidth())));
         result.append(frameStyle.getBottomRightCorner());
 
-        result.append(" ".repeat(getPadding()));
-
         result.append("\n");
-
-        for (int i = 0; i < getPadding(); i++) {
-            result.append(" ".repeat(getPaddedWidth()));
-            result.append("\n");
-        }
 
         return result.toString().split("\n");
     }

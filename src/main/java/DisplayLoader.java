@@ -10,30 +10,74 @@ public class DisplayLoader {
 
     public TUIC load() {
 
+        // 125 x 29
+
         FrameStyle frameStyle = new ThinFrameStyle();
 
-        PlayerMapTUIC pmt1 = new PlayerMapTUIC(10, 10);
-        pmt1.setPadding(1);
+        PlayerMapTUIC yourBoard = new PlayerMapTUIC(10, 10);
 
-        FrameTUIC ft1 = new FrameTUIC();
-        ft1.setContents(pmt1);
-        ft1.setFrameStyle(frameStyle);
-        ft1.setTitle("Your board");
+        PadPaneTUIC yourBoardPadding = new PadPaneTUIC();
+        yourBoardPadding.setComponent(yourBoard);
+        yourBoardPadding.setPadding(1);
 
-        PlayerMapTUIC pmt2 = new PlayerMapTUIC(10, 10);
-        pmt2.setPadding(1);
+        FrameTUIC yourBoardFrame = new FrameTUIC();
+        yourBoardFrame.setContents(yourBoardPadding);
+        yourBoardFrame.setFrameStyle(frameStyle);
+        yourBoardFrame.setTitle("Your board");
 
-        FrameTUIC ft2 = new FrameTUIC();
-        ft2.setContents(pmt2);
-        ft2.setFrameStyle(frameStyle);
-        ft2.setTitle("Enemy board");
+        PlayerMapTUIC enemyBoard = new PlayerMapTUIC(10, 10);
 
-        HBoxTUIC boards = new HBoxTUIC();
-        boards.setSpacing(2);
-        boards.setComponents(new TUIC[] {ft1, ft2});
+        PadPaneTUIC enemyBoardPadding = new PadPaneTUIC();
+        enemyBoardPadding.setComponent(enemyBoard);
+        enemyBoardPadding.setPadding(1);
 
-        return boards;
+        FrameTUIC enemyBoardFrame = new FrameTUIC();
+        enemyBoardFrame.setContents(enemyBoardPadding);
+        enemyBoardFrame.setFrameStyle(frameStyle);
+        enemyBoardFrame.setTitle("Enemy board");
+
+        VBoxTUIC boards = new VBoxTUIC();
+        boards.setSpacing(1);
+        boards.setComponents(new TUIC[] {yourBoardFrame, enemyBoardFrame});
+
+        SpacerTUIC filler = new SpacerTUIC(64, 29);
+
+        StringListTUIC actions = new StringListTUIC(20, 25);
+        actions.addEntry("Szczur 1");
+        actions.addEntry("Szczur 2");
+        actions.addEntry("Szczur 3");
+        actions.addEntry("Szczur 4");
+
+        PadPaneTUIC actionsPadding = new PadPaneTUIC();
+        actionsPadding.setComponent(actions);
+        actionsPadding.setPadding(1);
+
+        FrameTUIC actionsFrame = new FrameTUIC();
+        actionsFrame.setContents(actionsPadding);
+        actionsFrame.setFrameStyle(frameStyle);
+        actionsFrame.setTitle("History");
+
+        HBoxTUIC root = new HBoxTUIC();
+        root.setSpacing(1);
+        root.setComponents(new TUIC[]{filler, boards, actionsFrame});
+
+        controller = new DisplayController();
+
+        controller.setPlayerMap(yourBoard);
+        controller.setEnemyMap(enemyBoard);
+        controller.setHistory(actions);
+
+        return root;
 
     }
+
+    public TUIC getRoot() {
+        return root;
+    }
+
+    public DisplayController getController() {
+        return controller;
+    }
+
 
 }

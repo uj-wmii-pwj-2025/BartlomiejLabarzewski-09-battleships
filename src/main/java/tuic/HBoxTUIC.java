@@ -28,18 +28,18 @@ public class HBoxTUIC extends TUIC {
     public int getWidth() {
         int widthSum = 0;
         for (TUIC component : components) {
-            widthSum += component.getPaddedWidth();
-            widthSum += spacing;
+            widthSum += component.getWidth();
+            widthSum += spacing * 3;
         }
-        if (widthSum > 0) widthSum -= spacing;
+        if (widthSum > 0) widthSum -= spacing * 3;
         return widthSum;
     }
 
     public int getHeight() {
         int maxHeight = 0;
         for (TUIC component : components) {
-            if (maxHeight < component.getPaddedHeight()) {
-                maxHeight = component.getPaddedHeight();
+            if (maxHeight < component.getHeight()) {
+                maxHeight = component.getHeight();
             }
         }
         return maxHeight;
@@ -51,25 +51,18 @@ public class HBoxTUIC extends TUIC {
 
         List<String[]> componentImages = Arrays.stream(components).map(TUIC::draw).toList();
 
-        for (int i = 0; i < padding; i++) {
-            sb.append(" ".repeat(getPaddedWidth())).append("\n");
-        }
         for (int col = 0; col < getHeight(); col++) {
-            sb.append(" ".repeat(padding));
             for (int i = 0; i < components.length; i++) {
-                if (components[i].getPaddedHeight() > col) {
+                if (components[i].getHeight() > col) {
                     sb.append(componentImages.get(i)[col]);
                 }
                 else {
-                    sb.append(" ".repeat(components[i].getPaddedWidth()));
+                    sb.append(" ".repeat(components[i].getWidth()));
                 }
-                sb.append(" ".repeat(spacing));
+                sb.append(" ".repeat(spacing * 3));
             }
-            sb.delete(sb.length() - spacing, sb.length());
-            sb.append(" ".repeat(padding)).append("\n");
-        }
-        for (int i = 0; i < padding; i++) {
-            sb.append(" ".repeat(getPaddedWidth())).append("\n");
+            sb.delete(sb.length() - spacing * 3, sb.length());
+            sb.append("\n");
         }
         return sb.toString().split("\n");
     }

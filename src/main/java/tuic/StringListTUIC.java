@@ -33,13 +33,9 @@ public class StringListTUIC extends TUIC {
 
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < padding; i++) {
-            sb.append(" ".repeat(getPaddedWidth())).append("\n");
-        }
-
         List<String> lastEntries;
 
-        if (entries.size() < getHeight()) {
+        if (entries.size() <= getHeight()) {
             lastEntries = entries;
         }
         else {
@@ -47,7 +43,6 @@ public class StringListTUIC extends TUIC {
         }
 
         for (String s : lastEntries) {
-            sb.append(" ".repeat(padding));
             if (s.length() <= getWidth()) {
                 sb.append(s);
                 sb.append(" ".repeat(getWidth() - s.length()));
@@ -55,16 +50,11 @@ public class StringListTUIC extends TUIC {
             else {
                 sb.append(s, 0, getWidth() - 1).append("…");
             }
-            sb.append(" ".repeat(padding));
             sb.append("\n");
         }
 
-        for (int i = 0; i < getHeight() - lastEntries.size(); i++) {
-            sb.append(" ".repeat(getPaddedWidth())).append("\n");
-        }
-
-        for (int i = 0; i < padding; i++) {
-            sb.append(" ".repeat(getPaddedWidth())).append("\n");
+        for (int i = lastEntries.size(); i < getHeight() ; i++) {
+            sb.append(" ".repeat(getWidth())).append("\n");
         }
 
         return sb.toString().split("\n");

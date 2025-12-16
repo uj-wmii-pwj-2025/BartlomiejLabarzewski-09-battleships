@@ -14,7 +14,7 @@ public class PlayerMapTUIC extends TUIC {
 
     @Override
     public int getWidth() {
-        return 2 * width + 3;
+        return 2 * width - 1;
     }
 
     @Override
@@ -41,25 +41,12 @@ public class PlayerMapTUIC extends TUIC {
 
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < padding; i++) {
-            sb.append(" ".repeat(getPaddedWidth())).append("\n");
-        }
-
         for (char[] chars : map) {
-            sb.append(" ".repeat(padding));
-            sb.append("  ");
             for (char aChar : chars) {
                 sb.append(aChar).append(" ");
             }
             sb.delete(sb.length() - 1, sb.length());
-
-            sb.append("  ");
-            sb.append(" ".repeat(padding));
             sb.append("\n");
-        }
-
-        for (int i = 0; i < padding; i++) {
-            sb.append(" ".repeat(getPaddedWidth())).append("\n");
         }
 
         return sb.toString().split("\n");
