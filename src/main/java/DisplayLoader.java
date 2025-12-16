@@ -43,10 +43,6 @@ public class DisplayLoader {
         SpacerTUIC filler = new SpacerTUIC(64, 29);
 
         StringListTUIC actions = new StringListTUIC(20, 25);
-        actions.addEntry("Szczur 1");
-        actions.addEntry("Szczur 2");
-        actions.addEntry("Szczur 3");
-        actions.addEntry("Szczur 4");
 
         PadPaneTUIC actionsPadding = new PadPaneTUIC();
         actionsPadding.setComponent(actions);
@@ -66,6 +62,7 @@ public class DisplayLoader {
         controller.setPlayerMap(yourBoard);
         controller.setEnemyMap(enemyBoard);
         controller.setHistory(actions);
+        controller.setRoot(root);
 
         return root;
 

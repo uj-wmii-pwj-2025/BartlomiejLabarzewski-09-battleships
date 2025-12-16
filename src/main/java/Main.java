@@ -1,14 +1,8 @@
 import controllers.DisplayController;
-import framestyle.ThinFrameStyle;
 import tuic.*;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Scanner;
 
 public class Main {
 
@@ -55,27 +49,17 @@ public class Main {
             throw new RuntimeException("Map file is not readable!");
         }
 
-        char[][] map;
-        try (FileInputStream fis = new FileInputStream(mapFile)) {
-            MapLoader loader = new MapLoader(new InputStreamReader(fis));
-            map = loader.load();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        Scanner scanner = new Scanner(System.in);
-
         DisplayLoader displayLoader = new DisplayLoader();
         TUIC display = displayLoader.load();
         DisplayController displayController = displayLoader.getController();
 
-        System.out.println(String.join("\n", display.draw()));
-
-        while (scanner.hasNextLine()) {
-            displayController.addHistoryEntry(scanner.nextLine());
-
-            System.out.println(String.join("\n", display.draw()));
+        if (mode == ApplicationMode.SERVER) {
+            ServerGame game = new ServerGame(displayController, port);
+            game.process();
+        }
+        else if (mode == ApplicationMode.CLIENT) {
+            ClientGame game = new ClientGame(displayController, hostName, port);
+            game.process();
         }
 
     }
