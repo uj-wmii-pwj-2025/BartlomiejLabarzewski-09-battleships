@@ -1,5 +1,12 @@
+import framestyle.ThinFrameStyle;
+import tuic.*;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class Main {
 
@@ -22,12 +29,43 @@ public class Main {
             return;
         }
 
+        if (mode == ApplicationMode.SERVER && hostSet) {
+            System.err.println("-host argument is only for the client mode!");
+            return;
+        }
+
         System.out.println("Mode: " + mode);
         System.out.println("Port: " + port);
         System.out.println("Host: " + hostName);
         System.out.println("Map: " + mapFile.toPath().toAbsolutePath());
-        //TODO: Logika argumentów i odpalenie aplikacji
 
+        System.out.println("Loading Map...");
+
+        if (!mapFile.exists()) {
+            throw new RuntimeException("Map file not found: " + mapFile.getAbsolutePath());
+        }
+
+        if (!mapFile.isFile()) {
+            throw new RuntimeException("Map file is not a normal file!");
+        }
+
+        if (!mapFile.canRead()) {
+            throw new RuntimeException("Map file is not readable!");
+        }
+
+        char[][] map;
+        try (FileInputStream fis = new FileInputStream(mapFile)) {
+            MapLoader loader = new MapLoader(new InputStreamReader(fis));
+            map = loader.load();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        DisplayLoader displayLoader = new DisplayLoader();
+        TUIC display = displayLoader.load();
+
+        System.out.println(String.join("\n", display.draw()));
     }
 
     private static boolean tryParsing(String[] args) {
