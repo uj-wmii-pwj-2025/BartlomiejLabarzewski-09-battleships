@@ -3,6 +3,8 @@ import framestyle.FrameStyle;
 import framestyle.ThinFrameStyle;
 import tuic.*;
 
+import java.awt.*;
+
 public class DisplayLoader {
 
     TUIC root = null;
@@ -13,6 +15,12 @@ public class DisplayLoader {
         // 125 x 29
 
         FrameStyle frameStyle = new ThinFrameStyle();
+
+        SpacerTUIC logoPlaceholder = new SpacerTUIC(55, 4);
+
+        FrameTUIC logoFrame = new FrameTUIC();
+        logoFrame.setContents(logoPlaceholder);
+        logoFrame.setFrameStyle(frameStyle);
 
         PlayerMapTUIC yourBoard = new PlayerMapTUIC(10, 10);
 
@@ -36,11 +44,33 @@ public class DisplayLoader {
         enemyBoardFrame.setFrameStyle(frameStyle);
         enemyBoardFrame.setTitle("Enemy board");
 
-        VBoxTUIC boards = new VBoxTUIC();
+        HBoxTUIC boards = new HBoxTUIC();
         boards.setSpacing(1);
         boards.setComponents(new TUIC[] {yourBoardFrame, enemyBoardFrame});
 
-        SpacerTUIC filler = new SpacerTUIC(64, 29);
+        SpacerTUIC statusPlaceholder = new SpacerTUIC(55, 5);
+
+        FrameTUIC statusFrame = new FrameTUIC();
+        statusFrame.setContents(statusPlaceholder);
+        statusFrame.setTitle("Status");
+        statusFrame.setFrameStyle(frameStyle);
+
+        VBoxTUIC screenMiddle = new VBoxTUIC();
+        screenMiddle.setComponents(new TUIC[]{logoFrame, boards, statusFrame});
+        screenMiddle.setSpacing(1);
+
+        StringListTUIC chat = new StringListTUIC(29, 25);
+
+        PadPaneTUIC chatPadding = new PadPaneTUIC();
+        chatPadding.setComponent(chat);
+        chatPadding.setPadding(1);
+
+        FrameTUIC chatFrame = new FrameTUIC();
+        chatFrame.setContents(chatPadding);
+        chatFrame.setFrameStyle(frameStyle);
+        chatFrame.setTitle("Chat");
+
+        // SpacerTUIC filler = new SpacerTUIC(33, 29);
 
         StringListTUIC actions = new StringListTUIC(20, 25);
 
@@ -55,7 +85,7 @@ public class DisplayLoader {
 
         HBoxTUIC root = new HBoxTUIC();
         root.setSpacing(1);
-        root.setComponents(new TUIC[]{filler, boards, actionsFrame});
+        root.setComponents(new TUIC[]{chatFrame, screenMiddle, actionsFrame});
 
         controller = new DisplayController();
 
