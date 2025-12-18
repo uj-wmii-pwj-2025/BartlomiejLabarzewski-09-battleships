@@ -1,9 +1,9 @@
 import controllers.DisplayController;
 import framestyle.FrameStyle;
 import framestyle.ThinFrameStyle;
+import map.EnemyBoardCellStyle;
+import map.PlayerBoardCellStyle;
 import tuic.*;
-
-import java.awt.*;
 
 public class DisplayLoader {
 
@@ -22,7 +22,7 @@ public class DisplayLoader {
         logoFrame.setContents(logoPlaceholder);
         logoFrame.setFrameStyle(frameStyle);
 
-        PlayerMapTUIC yourBoard = new PlayerMapTUIC(10, 10);
+        BoardTUIC yourBoard = new BoardTUIC(new PlayerBoardCellStyle());
 
         PadPaneTUIC yourBoardPadding = new PadPaneTUIC();
         yourBoardPadding.setComponent(yourBoard);
@@ -33,7 +33,7 @@ public class DisplayLoader {
         yourBoardFrame.setFrameStyle(frameStyle);
         yourBoardFrame.setTitle("Your board");
 
-        PlayerMapTUIC enemyBoard = new PlayerMapTUIC(10, 10);
+        BoardTUIC enemyBoard = new BoardTUIC(new EnemyBoardCellStyle());
 
         PadPaneTUIC enemyBoardPadding = new PadPaneTUIC();
         enemyBoardPadding.setComponent(enemyBoard);
@@ -93,12 +93,12 @@ public class DisplayLoader {
 
         controller = new DisplayController();
 
-        controller.setPlayerMap(yourBoard);
-        controller.setEnemyMap(enemyBoard);
-        controller.setHistory(actions);
-        controller.setRoot(root);
-        controller.setChat(chat);
-        controller.setStatus(status);
+        controller.setPlayerBoardTUIC(yourBoard);
+        controller.setEnemyBoardTUIC(enemyBoard);
+        controller.setHistoryTUIC(actions);
+        controller.setRootTUIC(root);
+        controller.setChatTUIC(chat);
+        controller.setStatusTUIC(status);
 
         return root;
 

@@ -1,7 +1,8 @@
 import controllers.DisplayController;
+import map.Board;
 import tuic.*;
 
-import java.io.File;
+import java.io.*;
 import java.nio.file.Paths;
 
 public class Main {
@@ -53,12 +54,25 @@ public class Main {
         TUIC display = displayLoader.load();
         DisplayController displayController = displayLoader.getController();
 
+
+        char[][] map;
+        try {
+            MapLoader loader = new MapLoader(new InputStreamReader(new FileInputStream(mapFile)));
+            map = loader.load();
+        }
+        catch (FileNotFoundException e) {
+            throw new RuntimeException("Map file not found: " + mapFile.getAbsolutePath(), e);
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Failed to load map: " + mapFile.getAbsolutePath(), e);
+        }
+
         if (mode == ApplicationMode.SERVER) {
-            ServerGame game = new ServerGame(displayController, port);
+            ServerGame game = new ServerGame(displayController, map, port);
             game.process();
         }
         else if (mode == ApplicationMode.CLIENT) {
-            ClientGame game = new ClientGame(displayController, hostName, port);
+            ClientGame game = new ClientGame(displayController, map, hostName, port);
             game.process();
         }
 

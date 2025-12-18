@@ -1,9 +1,7 @@
 import controllers.DisplayController;
+import map.Board;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -11,10 +9,12 @@ import java.util.Scanner;
 public class ServerGame {
 
     DisplayController displayController;
+    char[][] map;
     int port;
 
-    public ServerGame(DisplayController displayController, int port) {
+    public ServerGame(DisplayController displayController, char[][] map, int port) {
         this.displayController = displayController;
+        this.map = map;
         this.port = port;
     }
 
@@ -26,6 +26,8 @@ public class ServerGame {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
             Scanner consoleScanner = new Scanner(System.in);
+            displayController.setPlayerBoard(new Board(map, 10, 10));
+            displayController.setEnemyBoard(new Board(10, 10));
             displayController.setStatusLine("Enemy turn");
             displayController.draw();
             boolean yourTurn = false;

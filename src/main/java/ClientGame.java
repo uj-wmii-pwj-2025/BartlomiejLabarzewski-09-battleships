@@ -1,9 +1,7 @@
 import controllers.DisplayController;
+import map.Board;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -11,11 +9,13 @@ import java.util.Scanner;
 public class ClientGame {
 
     DisplayController displayController;
+    char[][] map;
     String hostName;
     int port;
 
-    public ClientGame(DisplayController displayController, String hostName, int port) {
+    public ClientGame(DisplayController displayController, char[][] map, String hostName, int port) {
         this.displayController = displayController;
+        this.map = map;
         this.hostName = hostName;
         this.port = port;
     }
@@ -26,6 +26,8 @@ public class ClientGame {
             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             Scanner consoleScanner = new Scanner(System.in);
+            displayController.setPlayerBoard(new Board(map, 10, 10));
+            displayController.setEnemyBoard(new Board(10, 10));
             displayController.setStatusLine("Your turn");
             displayController.draw();
             boolean yourTurn = true;

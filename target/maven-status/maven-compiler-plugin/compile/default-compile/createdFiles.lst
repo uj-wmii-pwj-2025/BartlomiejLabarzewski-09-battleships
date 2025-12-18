@@ -1,4 +1,11 @@
+map/BoardObjectCell.class
 ClientGame.class
+map/BoardCellStyle.class
+map/BoardShotCell.class
+map/PlayerBoardCellStyle.class
+tuic/LabelTUIC.class
+map/Board.class
 ServerGame.class
 tuic/CenteringPaneTUIC.class
-tuic/LabelTUIC.class
+map/EnemyBoardCellStyle.class
+tuic/BoardTUIC.class
