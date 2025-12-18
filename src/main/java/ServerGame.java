@@ -26,21 +26,28 @@ public class ServerGame {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
             Scanner consoleScanner = new Scanner(System.in);
+            displayController.setStatusLine("Enemy turn");
             displayController.draw();
+            boolean yourTurn = false;
             while (true) {
-                String line = reader.readLine();
-                if (line.equals("exit")) break;
-                else {
-                    displayController.addHistoryEntry("ENM: " + line);
+                if (yourTurn) {
+                    String message = consoleScanner.nextLine();
+                    displayController.addChatMessage("YOU: " + message);
+                    displayController.setStatusLine("Enemy turn");
                     displayController.draw();
-                    String yourLine = consoleScanner.nextLine();
-                    displayController.addHistoryEntry("YOU: " + yourLine);
+                    writer.println(message);
+                    yourTurn = false;
+                    if (message.equals("q!")) break;
+                } else {
+                    String message = reader.readLine();
+                    displayController.addChatMessage("ENM: " + message);
+                    displayController.setStatusLine("Your turn");
                     displayController.draw();
-                    writer.println(yourLine);
+                    yourTurn = true;
+                    if (message.equals("q!")) break;
                 }
             }
         }
-
         catch (IOException e) {
             throw new RuntimeException("Could not bind to port " + port, e);
         }

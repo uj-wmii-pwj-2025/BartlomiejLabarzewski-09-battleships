@@ -1,7 +1,8 @@
 #!/bin/bash
 
 function openKonsoleAndRun {
-    konsole -e sh -c "$1" &
+    feed=$1
+    konsole -e "$feed" &
 }
 
 # "cd ~/Dokumenty/UJ/Programming\ in\ Java/BartlomiejLabarzewski-09-battleships/target/classes && java Main -mode server -port 1230 -map test-map.txt"

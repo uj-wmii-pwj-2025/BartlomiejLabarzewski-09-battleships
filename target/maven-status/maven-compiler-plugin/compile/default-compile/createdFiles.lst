@@ -1,2 +1,4 @@
 ClientGame.class
 ServerGame.class
+tuic/CenteringPaneTUIC.class
+tuic/LabelTUIC.class

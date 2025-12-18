@@ -48,10 +48,14 @@ public class DisplayLoader {
         boards.setSpacing(1);
         boards.setComponents(new TUIC[] {yourBoardFrame, enemyBoardFrame});
 
-        SpacerTUIC statusPlaceholder = new SpacerTUIC(55, 5);
+        LabelTUIC status = new LabelTUIC(43);
+        status.setLine("Foo");
+
+        CenteringPaneTUIC statusPane = new CenteringPaneTUIC(55, 5);
+        statusPane.setComponent(status);
 
         FrameTUIC statusFrame = new FrameTUIC();
-        statusFrame.setContents(statusPlaceholder);
+        statusFrame.setContents(statusPane);
         statusFrame.setTitle("Status");
         statusFrame.setFrameStyle(frameStyle);
 
@@ -93,6 +97,8 @@ public class DisplayLoader {
         controller.setEnemyMap(enemyBoard);
         controller.setHistory(actions);
         controller.setRoot(root);
+        controller.setChat(chat);
+        controller.setStatus(status);
 
         return root;
 

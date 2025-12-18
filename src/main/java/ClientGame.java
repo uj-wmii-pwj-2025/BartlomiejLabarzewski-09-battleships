@@ -26,19 +26,26 @@ public class ClientGame {
             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             Scanner consoleScanner = new Scanner(System.in);
-            displayController.addHistoryEntry("YOU: szczur");
+            displayController.setStatusLine("Your turn");
             displayController.draw();
-            writer.println("szczur");
+            boolean yourTurn = true;
             while (true) {
-                String line = reader.readLine();
-                if (line.equals("exit")) break;
+                if (yourTurn) {
+                    String message = consoleScanner.nextLine();
+                    displayController.addChatMessage("YOU: " + message);
+                    displayController.setStatusLine("Enemy turn");
+                    displayController.draw();
+                    writer.println(message);
+                    yourTurn = false;
+                    if (message.equals("q!")) break;
+                }
                 else {
-                    displayController.addHistoryEntry("ENM: " + line);
+                    String message = reader.readLine();
+                    displayController.addChatMessage("ENM: " + message);
+                    displayController.setStatusLine("Your turn");
                     displayController.draw();
-                    String yourLine = consoleScanner.nextLine();
-                    displayController.addHistoryEntry("YOU: " + yourLine);
-                    displayController.draw();
-                    writer.println(yourLine);
+                    yourTurn = true;
+                    if (message.equals("q!")) break;
                 }
             }
         } catch (UnknownHostException e) {
