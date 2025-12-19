@@ -11,6 +11,7 @@ public class DisplayController {
     private StringListTUIC historyTUIC;
     private StringListTUIC chatTUIC;
     private LabelTUIC statusTUIC;
+    private BoardController enemyBoardController;
 
     public void setPlayerBoardTUIC(BoardTUIC playerBoardTUIC) {
         this.playerBoardTUIC = playerBoardTUIC;
@@ -34,6 +35,12 @@ public class DisplayController {
 
     public void setRootTUIC(TUIC rootTUIC) {
         this.rootTUIC = rootTUIC;
+    }
+
+    public void setChosenField(String field) {
+        int row = field.charAt(0) - 'A';
+        int col = field.charAt(1) - '1';
+        enemyBoardTUIC.setChosenField(row, col);
     }
 
     public void markYourCellShot(int row, int col) {
@@ -68,6 +75,14 @@ public class DisplayController {
 
     public void addHistoryEntry(String entry) {
         historyTUIC.addEntry(entry);
+    }
+
+    public void setEnemyBoardController(BoardController enemyBoardController) {
+        this.enemyBoardController = enemyBoardController;
+    }
+
+    public BoardController getEnemyBoardController() {
+        return enemyBoardController;
     }
 
     public void draw() {

@@ -1,3 +1,4 @@
+import controllers.BoardController;
 import controllers.DisplayController;
 import framestyle.FrameStyle;
 import framestyle.ThinFrameStyle;
@@ -99,6 +100,10 @@ public class DisplayLoader {
         controller.setRootTUIC(root);
         controller.setChatTUIC(chat);
         controller.setStatusTUIC(status);
+
+        BoardController enemyBoardController = new BoardController();
+        enemyBoardController.setBoardTUIC(enemyBoard);
+        controller.setEnemyBoardController(enemyBoardController);
 
         return root;
 

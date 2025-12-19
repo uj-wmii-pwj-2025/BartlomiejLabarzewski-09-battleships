@@ -9,6 +9,9 @@ public class BoardTUIC extends TUIC {
 
     Board board;
     BoardCellStyle style;
+    int chosenCellRow;
+    int chosenCellCol;
+    private boolean hasSelectedCell;
 
 
     public BoardTUIC(BoardCellStyle style) {
@@ -21,6 +24,36 @@ public class BoardTUIC extends TUIC {
 
     public Board getBoard() {
         return board;
+    }
+
+    public boolean hasChosenField() {
+        return hasSelectedCell;
+    }
+
+    public void setChosenField(int row, int col) {
+        chosenCellRow = row;
+        chosenCellCol = col;
+        hasSelectedCell = true;
+    }
+
+    public void setChosenCellRow(int row) {
+        chosenCellRow = row;
+    }
+
+    public int getChosenCellRow() {
+        return chosenCellRow;
+    }
+
+    public void setChosenCellCol(int col) {
+        chosenCellCol = col;
+    }
+
+    public int getChosenCellCol() {
+        return chosenCellCol;
+    }
+
+    public void unsetChosenField() {
+        hasSelectedCell = false;
     }
 
     @Override
@@ -75,6 +108,10 @@ public class BoardTUIC extends TUIC {
             sb.append("\n");
         }
 
-        return sb.toString().split("\n");
+        String[] lines = sb.toString().split("\n");
+        if (hasSelectedCell) {
+            lines[chosenCellRow] = lines[chosenCellRow].substring(0, 2 * chosenCellCol) + "\u001b[0;36m" + lines[chosenCellRow].charAt(2 * chosenCellCol) + "\u001b[0m" + lines[chosenCellRow].substring(2 * chosenCellCol + 1, getWidth());
+        }
+        return lines;
     }
 }

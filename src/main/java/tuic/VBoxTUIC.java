@@ -53,7 +53,7 @@ public class VBoxTUIC extends TUIC {
             String[] componentImage = components[componentID].draw();
             for (String line : componentImage) {
                 sb.append(line);
-                sb.append(" ".repeat(getWidth() - line.length())).append("\n");
+                sb.append(" ".repeat(getWidth() - components[componentID].getWidth())).append("\n");
             }
             for (int i = 0; i < spacing; i++) {
                 sb.append(" ".repeat(getWidth())).append("\n");
