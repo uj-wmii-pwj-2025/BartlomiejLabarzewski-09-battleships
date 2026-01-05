@@ -1,10 +1,12 @@
 import controllers.DisplayController;
 import map.Board;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.NonBlockingReader;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class ServerGame {
 
@@ -23,30 +25,75 @@ public class ServerGame {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             Socket socket = serverSocket.accept();
             System.out.println("A client connected to you!");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            Terminal terminal = TerminalBuilder.builder().system(true).build();
+            terminal.enterRawMode();
+            NonBlockingReader terminalReader = terminal.reader();
+
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-            Scanner consoleScanner = new Scanner(System.in);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            String chosenField = "A1";
+
             displayController.setPlayerBoard(new Board(map, 10, 10));
             displayController.setEnemyBoard(new Board(10, 10));
             displayController.setStatusLine("Enemy turn");
+            displayController.setChosenField(chosenField);
             displayController.draw();
+
             boolean yourTurn = false;
             while (true) {
                 if (yourTurn) {
-                    String message = consoleScanner.nextLine();
+                    StringBuilder messageBuilder = new StringBuilder();
+                    // TODO: Response to enemy attack
+
+                    messageBuilder.append("foo");
+
+                    messageBuilder.append(';');
+
+                    boolean shouldEndTurn = false;
+
+                    char ch;
+
+                    while (!shouldEndTurn) {
+                        ch = (char) terminalReader.read();
+                        displayController.setStatusLine(ch == '\r' ? "ENTER" : String.valueOf(ch));
+                        switch (ch) {
+                            case 'a':
+                                displayController.getEnemyBoardController().moveLeft();
+                                break;
+                            case 's':
+                                displayController.getEnemyBoardController().moveDown();
+                                break;
+                            case 'd':
+                                displayController.getEnemyBoardController().moveRight();
+                                break;
+                            case 'w':
+                                displayController.getEnemyBoardController().moveUp();
+                                break;
+                            case '\r':
+                                messageBuilder.append(displayController.getEnemyBoardController().getChosenCell());
+                                shouldEndTurn = true;
+                                break;
+                        }
+                        displayController.draw();
+                    }
+
+                    String message = messageBuilder.toString();
+
                     displayController.addChatMessage("YOU: " + message);
                     displayController.setStatusLine("Enemy turn");
                     displayController.draw();
+
                     writer.println(message);
                     yourTurn = false;
-                    if (message.equals("q!")) break;
-                } else {
+                }
+                else {
                     String message = reader.readLine();
                     displayController.addChatMessage("ENM: " + message);
                     displayController.setStatusLine("Your turn");
                     displayController.draw();
                     yourTurn = true;
-                    if (message.equals("q!")) break;
                 }
             }
         }

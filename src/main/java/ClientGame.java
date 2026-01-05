@@ -7,7 +7,6 @@ import org.jline.utils.NonBlockingReader;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 public class ClientGame {
 
@@ -28,13 +27,11 @@ public class ClientGame {
             System.out.println("Connected to server!");
 
             Terminal terminal = TerminalBuilder.builder().system(true).build();
-
             terminal.enterRawMode();
             NonBlockingReader terminalReader = terminal.reader();
 
             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            Scanner consoleScanner = new Scanner(System.in);
 
             String chosenField = "A1";
 
@@ -44,12 +41,29 @@ public class ClientGame {
             displayController.setChosenField(chosenField);
             displayController.draw();
             boolean yourTurn = true;
+            boolean firstTurn = true;
             while (true) {
                 if (yourTurn) {
-                    int charCode;
 
-                    while ((charCode = terminalReader.read()) != -1) {
-                        char ch = (char) charCode;
+                    StringBuilder messageBuilder = new StringBuilder();
+
+                    // TODO: Response to enemy attack
+
+                    if (firstTurn) {
+                        messageBuilder.append("start");
+                    }
+                    else {
+                        messageBuilder.append("foo");
+                    }
+
+                    messageBuilder.append(';');
+
+                    boolean shouldEndTurn = false;
+
+                    char ch;
+
+                    while (!shouldEndTurn) {
+                        ch = (char) terminalReader.read();
                         displayController.setStatusLine(ch == '\r' ? "ENTER" : String.valueOf(ch));
                         switch (ch) {
                             case 'a':
@@ -64,18 +78,23 @@ public class ClientGame {
                             case 'w':
                                 displayController.getEnemyBoardController().moveUp();
                                 break;
+                            case '\r':
+                                messageBuilder.append(displayController.getEnemyBoardController().getChosenCell());
+                                shouldEndTurn = true;
+                                firstTurn = false;
+                                break;
                         }
                         displayController.draw();
                     }
-                    /*
-                    String message = consoleScanner.nextLine();
+
+                    String message = messageBuilder.toString();
+
                     displayController.addChatMessage("YOU: " + message);
                     displayController.setStatusLine("Enemy turn");
                     displayController.draw();
-                    */
+
                     writer.println(message);
                     yourTurn = false;
-                    if (message.equals("q!")) break;
                 }
                 else {
                     String message = reader.readLine();
@@ -83,7 +102,6 @@ public class ClientGame {
                     displayController.setStatusLine("Your turn");
                     displayController.draw();
                     yourTurn = true;
-                    if (message.equals("q!")) break;
                 }
             }
         } catch (UnknownHostException e) {
