@@ -1,5 +1,4 @@
 import controllers.DisplayController;
-import map.Board;
 import tuic.*;
 
 import java.io.*;
@@ -10,7 +9,7 @@ public class Main {
     private static ApplicationMode mode;
     private static int port;
     private static File mapFile;
-    private static String hostName;
+    private static String hostName = null;
 
     private static boolean modeSet = false;
     private static boolean portSet = false;
@@ -67,14 +66,8 @@ public class Main {
             throw new RuntimeException("Failed to load map: " + mapFile.getAbsolutePath(), e);
         }
 
-        if (mode == ApplicationMode.SERVER) {
-            ServerGame game = new ServerGame(displayController, map, port);
-            game.process();
-        }
-        else if (mode == ApplicationMode.CLIENT) {
-            ClientGame game = new ClientGame(displayController, map, hostName, port);
-            game.process();
-        }
+        Game game = new Game(displayController, mode, map, hostName, port);
+        game.start();
 
     }
 
