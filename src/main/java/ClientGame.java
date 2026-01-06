@@ -1,5 +1,7 @@
 import controllers.DisplayController;
 import map.Board;
+import map.BoardObjectCell;
+import misc.Coordinates;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.NonBlockingReader;
@@ -33,15 +35,19 @@ public class ClientGame {
             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            String chosenField = "A1";
-
             displayController.setPlayerBoard(new Board(map, 10, 10));
             displayController.setEnemyBoard(new Board(10, 10));
             displayController.setStatusLine("Your turn");
-            displayController.setChosenField(chosenField);
+            displayController.setChosenField("A1");
             displayController.draw();
             boolean yourTurn = true;
             boolean firstTurn = true;
+
+            String enemyFieldChoice = null;
+            String yourAnswer = null;
+            String yourFieldChoice = null;
+            String enemyAnswer = null;
+
             while (true) {
                 if (yourTurn) {
 
@@ -52,8 +58,20 @@ public class ClientGame {
                     if (firstTurn) {
                         messageBuilder.append("start");
                     }
+                    else if (enemyFieldChoice == null) {
+                        System.err.println("Enemy field choice is NULL, unreachable");
+                    }
+                    else if (displayController.getPlayerBoardController().getObjectStatus(enemyFieldChoice) == BoardObjectCell.WATER) {
+                        messageBuilder.append("pudło");
+                    }
+                    else if (displayController.getPlayerBoardController().getBoardTUIC().getBoard().isAllSunk()) {
+                        messageBuilder.append("ostatni zatopiony");
+                    }
+                    else if (displayController.getPlayerBoardController().getBoardTUIC().getBoard().isSunk(Coordinates.getCellRow(enemyFieldChoice), Coordinates.getCellCol(enemyFieldChoice))) {
+                        messageBuilder.append("trafiony zatopiony");
+                    }
                     else {
-                        messageBuilder.append("foo");
+                        messageBuilder.append("trafiony");
                     }
 
                     messageBuilder.append(';');
@@ -79,7 +97,8 @@ public class ClientGame {
                                 displayController.getEnemyBoardController().moveUp();
                                 break;
                             case '\r':
-                                messageBuilder.append(displayController.getEnemyBoardController().getChosenCell());
+                                yourFieldChoice = displayController.getEnemyBoardController().getChosenCell();
+                                messageBuilder.append(yourFieldChoice);
                                 shouldEndTurn = true;
                                 firstTurn = false;
                                 break;
@@ -99,6 +118,27 @@ public class ClientGame {
                 else {
                     String message = reader.readLine();
                     displayController.addChatMessage("ENM: " + message);
+
+                    enemyAnswer = message.substring(0, message.indexOf(';'));
+                    displayController.getEnemyBoardController().markShot(yourFieldChoice);
+                    switch (enemyAnswer) {
+                        case "pudło":
+                            displayController.getEnemyBoardController().markWater(yourFieldChoice);
+                            break;
+                        case "trafiony":
+                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                            break;
+                        case "trafiony zatopiony":
+                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                            break;
+                        case "ostatni zatopiony":
+                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                            break;
+                    }
+
+                    enemyFieldChoice = message.substring(message.indexOf(';') + 1);
+                    displayController.getPlayerBoardController().markShot(enemyFieldChoice);
+
                     displayController.setStatusLine("Your turn");
                     displayController.draw();
                     yourTurn = true;

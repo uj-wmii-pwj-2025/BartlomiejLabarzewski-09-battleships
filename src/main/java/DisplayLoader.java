@@ -101,6 +101,10 @@ public class DisplayLoader {
         controller.setChatTUIC(chat);
         controller.setStatusTUIC(status);
 
+        BoardController playerBoardController = new BoardController();
+        playerBoardController.setBoardTUIC(yourBoard);
+        controller.setPlayerBoardController(playerBoardController);
+
         BoardController enemyBoardController = new BoardController();
         enemyBoardController.setBoardTUIC(enemyBoard);
         controller.setEnemyBoardController(enemyBoardController);

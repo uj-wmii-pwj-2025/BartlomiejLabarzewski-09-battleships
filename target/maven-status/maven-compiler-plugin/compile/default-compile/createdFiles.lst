@@ -21,6 +21,7 @@ MapLoader.class
 map/EnemyBoardCellStyle.class
 CommandParser.class
 tuic/HBoxTUIC.class
+misc/Coordinates.class
 tuic/BoardTUIC.class
 tuic/SpacerTUIC.class
 tuic/StringListTUIC.class

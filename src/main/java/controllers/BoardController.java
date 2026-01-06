@@ -1,6 +1,10 @@
 package controllers;
 
+import map.BoardObjectCell;
+import map.BoardShotCell;
 import tuic.BoardTUIC;
+
+import misc.Coordinates;
 
 public class BoardController {
 
@@ -8,6 +12,10 @@ public class BoardController {
 
     public void setBoardTUIC(BoardTUIC boardTUIC) {
         this.boardTUIC = boardTUIC;
+    }
+
+    public BoardTUIC getBoardTUIC() {
+        return boardTUIC;
     }
 
     public void moveRight() {
@@ -40,10 +48,27 @@ public class BoardController {
         int row = boardTUIC.getChosenCellRow();
         int col = boardTUIC.getChosenCellCol();
 
-        String rowPart = String.valueOf((char) ('A' + row));
-
-        String colPart = String.valueOf(col + 1);
-
-        return rowPart + colPart;
+        return Coordinates.getCellFromCoordinates(row, col);
     }
+
+    public BoardObjectCell getObjectStatus(String cell) {
+        return boardTUIC.getBoard().getObject(Coordinates.getCellRow(cell), Coordinates.getCellCol(cell));
+    }
+
+    public BoardShotCell getShotStatus(String cell) {
+        return boardTUIC.getBoard().getShot(Coordinates.getCellRow(cell), Coordinates.getCellCol(cell));
+    }
+
+    public void markShot(String cell) {
+        boardTUIC.getBoard().setShot(Coordinates.getCellRow(cell), Coordinates.getCellCol(cell));
+    }
+
+    public void markWater(String cell) {
+        boardTUIC.getBoard().setWater(Coordinates.getCellRow(cell), Coordinates.getCellCol(cell));
+    }
+
+    public void markShip(String cell) {
+        boardTUIC.getBoard().setShip(Coordinates.getCellRow(cell), Coordinates.getCellCol(cell));
+    }
+
 }

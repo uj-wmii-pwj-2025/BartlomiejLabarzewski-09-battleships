@@ -1,5 +1,7 @@
 import controllers.DisplayController;
 import map.Board;
+import map.BoardObjectCell;
+import misc.Coordinates;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.NonBlockingReader;
@@ -41,13 +43,31 @@ public class ServerGame {
             displayController.setChosenField(chosenField);
             displayController.draw();
 
+            String enemyFieldChoice = null;
+            String yourAnswer = null;
+            String yourFieldChoice = null;
+            String enemyAnswer = null;
+
             boolean yourTurn = false;
             while (true) {
                 if (yourTurn) {
                     StringBuilder messageBuilder = new StringBuilder();
                     // TODO: Response to enemy attack
-
-                    messageBuilder.append("foo");
+                    if (enemyFieldChoice == null) {
+                        System.err.println("Enemy field choice is NULL, unreachable");
+                    }
+                    else if (displayController.getPlayerBoardController().getObjectStatus(enemyFieldChoice) == BoardObjectCell.WATER) {
+                        messageBuilder.append("pudło");
+                    }
+                    else if (displayController.getPlayerBoardController().getBoardTUIC().getBoard().isAllSunk()) {
+                        messageBuilder.append("ostatni zatopiony");
+                    }
+                    else if (displayController.getPlayerBoardController().getBoardTUIC().getBoard().isSunk(Coordinates.getCellRow(enemyFieldChoice), Coordinates.getCellCol(enemyFieldChoice))) {
+                        messageBuilder.append("trafiony zatopiony");
+                    }
+                    else {
+                        messageBuilder.append("trafiony");
+                    }
 
                     messageBuilder.append(';');
 
@@ -72,7 +92,9 @@ public class ServerGame {
                                 displayController.getEnemyBoardController().moveUp();
                                 break;
                             case '\r':
-                                messageBuilder.append(displayController.getEnemyBoardController().getChosenCell());
+                                yourFieldChoice = displayController.getEnemyBoardController().getChosenCell();
+                                displayController.getEnemyBoardController().markShot(yourFieldChoice);
+                                messageBuilder.append(yourFieldChoice);
                                 shouldEndTurn = true;
                                 break;
                         }
@@ -91,6 +113,28 @@ public class ServerGame {
                 else {
                     String message = reader.readLine();
                     displayController.addChatMessage("ENM: " + message);
+
+                    enemyAnswer = message.substring(0, message.indexOf(';'));
+                    switch (enemyAnswer) {
+                        case "start":
+                            break;
+                        case "pudło":
+                            displayController.getEnemyBoardController().markWater(yourFieldChoice);
+                            break;
+                        case "trafiony":
+                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                            break;
+                        case "trafiony zatopiony":
+                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                            break;
+                        case "ostatni zatopiony":
+                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                            break;
+                    }
+
+                    enemyFieldChoice = message.substring(message.indexOf(';') + 1);
+                    displayController.getPlayerBoardController().markShot(enemyFieldChoice);
+
                     displayController.setStatusLine("Your turn");
                     displayController.draw();
                     yourTurn = true;

@@ -11,6 +11,7 @@ public class DisplayController {
     private StringListTUIC historyTUIC;
     private StringListTUIC chatTUIC;
     private LabelTUIC statusTUIC;
+    private BoardController playerBoardController;
     private BoardController enemyBoardController;
 
     public void setPlayerBoardTUIC(BoardTUIC playerBoardTUIC) {
@@ -75,6 +76,14 @@ public class DisplayController {
 
     public void addHistoryEntry(String entry) {
         historyTUIC.addEntry(entry);
+    }
+
+    public void setPlayerBoardController(BoardController playerBoardController) {
+        this.playerBoardController = playerBoardController;
+    }
+
+    public BoardController getPlayerBoardController() {
+        return playerBoardController;
     }
 
     public void setEnemyBoardController(BoardController enemyBoardController) {
