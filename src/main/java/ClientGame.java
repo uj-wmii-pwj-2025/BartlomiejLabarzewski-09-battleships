@@ -8,6 +8,7 @@ import org.jline.utils.NonBlockingReader;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 public class ClientGame {
@@ -26,6 +27,8 @@ public class ClientGame {
 
     public void process() {
         try (Socket clientSocket = new Socket(hostName, port)) {
+            int readTimeout = 3000;
+            clientSocket.setSoTimeout(readTimeout);
             System.out.println("Connected to server!");
 
             Terminal terminal = TerminalBuilder.builder().system(true).build();
@@ -33,7 +36,8 @@ public class ClientGame {
             NonBlockingReader terminalReader = terminal.reader();
 
             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            InputStream socketIn = clientSocket.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socketIn));
 
             displayController.setPlayerBoard(new Board(map, 10, 10));
             displayController.setEnemyBoard(new Board(10, 10));
@@ -48,12 +52,14 @@ public class ClientGame {
             String yourFieldChoice = null;
             String enemyAnswer = null;
 
-            while (true) {
+            String yourMessage = null;
+
+            boolean shouldEndGame = false;
+
+            while (!shouldEndGame) {
                 if (yourTurn) {
 
                     StringBuilder messageBuilder = new StringBuilder();
-
-                    // TODO: Response to enemy attack
 
                     if (firstTurn) {
                         messageBuilder.append("start");
@@ -66,6 +72,7 @@ public class ClientGame {
                     }
                     else if (displayController.getPlayerBoardController().getBoardTUIC().getBoard().isAllSunk()) {
                         messageBuilder.append("ostatni zatopiony");
+                        shouldEndGame = true;
                     }
                     else if (displayController.getPlayerBoardController().getBoardTUIC().getBoard().isSunk(Coordinates.getCellRow(enemyFieldChoice), Coordinates.getCellCol(enemyFieldChoice))) {
                         messageBuilder.append("trafiony zatopiony");
@@ -74,72 +81,129 @@ public class ClientGame {
                         messageBuilder.append("trafiony");
                     }
 
-                    messageBuilder.append(';');
+                    if (!shouldEndGame) {
 
-                    boolean shouldEndTurn = false;
+                        messageBuilder.append(';');
 
-                    char ch;
+                        boolean shouldEndTurn = false;
 
-                    while (!shouldEndTurn) {
-                        ch = (char) terminalReader.read();
-                        displayController.setStatusLine(ch == '\r' ? "ENTER" : String.valueOf(ch));
-                        switch (ch) {
-                            case 'a':
-                                displayController.getEnemyBoardController().moveLeft();
-                                break;
-                            case 's':
-                                displayController.getEnemyBoardController().moveDown();
-                                break;
-                            case 'd':
-                                displayController.getEnemyBoardController().moveRight();
-                                break;
-                            case 'w':
-                                displayController.getEnemyBoardController().moveUp();
-                                break;
-                            case '\r':
-                                yourFieldChoice = displayController.getEnemyBoardController().getChosenCell();
-                                messageBuilder.append(yourFieldChoice);
-                                shouldEndTurn = true;
-                                firstTurn = false;
-                                break;
+                        char ch;
+
+                        while (!shouldEndTurn) {
+                            ch = (char) terminalReader.read();
+                            displayController.setStatusLine(ch == '\r' ? "ENTER" : String.valueOf(ch));
+                            switch (ch) {
+                                case 'a':
+                                    displayController.getEnemyBoardController().moveLeft();
+                                    break;
+                                case 's':
+                                    displayController.getEnemyBoardController().moveDown();
+                                    break;
+                                case 'd':
+                                    displayController.getEnemyBoardController().moveRight();
+                                    break;
+                                case 'w':
+                                    displayController.getEnemyBoardController().moveUp();
+                                    break;
+                                case '\r':
+                                    yourFieldChoice = displayController.getEnemyBoardController().getChosenCell();
+                                    messageBuilder.append(yourFieldChoice);
+                                    shouldEndTurn = true;
+                                    firstTurn = false;
+                                    break;
+                            }
+                            displayController.draw();
                         }
-                        displayController.draw();
                     }
 
-                    String message = messageBuilder.toString();
+                    yourMessage = messageBuilder.toString();
 
-                    displayController.addHistoryMessage("YOU: " + message);
-                    displayController.setStatusLine("Enemy turn");
+                    displayController.addHistoryMessage("YOU: " + yourMessage);
+
+                    if (shouldEndGame) displayController.setStatusLine("Przegrana");
+                    else displayController.setStatusLine("Enemy turn");
+
                     displayController.draw();
 
-                    writer.println(message);
+                    writer.println(yourMessage);
                     yourTurn = false;
                 }
                 else {
-                    String message = reader.readLine();
-                    displayController.addHistoryMessage("ENM: " + message);
 
-                    enemyAnswer = message.substring(0, message.indexOf(';'));
-                    displayController.getEnemyBoardController().markShot(yourFieldChoice);
-                    switch (enemyAnswer) {
-                        case "pudło":
-                            displayController.getEnemyBoardController().markWater(yourFieldChoice);
-                            break;
-                        case "trafiony":
-                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
-                            break;
-                        case "trafiony zatopiony":
-                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
-                            break;
-                        case "ostatni zatopiony":
-                            displayController.getEnemyBoardController().markShip(yourFieldChoice);
-                            break;
+                    boolean correctMessage = false;
+
+                    for (int i = 0; i < 3 && !correctMessage; i++) {
+                        String enemyMessage;
+                        try {
+                            while (socketIn.available() > 0) {
+                                reader.readLine();
+                            }
+                            enemyMessage = reader.readLine();
+                            displayController.setStatusLine(String.valueOf(i));
+
+                            displayController.addHistoryMessage("ENM: " + enemyMessage);
+
+                            if (enemyMessage.indexOf(';') == -1 && enemyMessage.equals("ostatni zatopiony")) {
+                                displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                                shouldEndGame = true;
+                                correctMessage = true;
+                            }
+                            else if (enemyMessage.indexOf(';') != -1) {
+
+                                boolean correctAnswer = false;
+                                boolean correctCell = false;
+
+                                enemyAnswer = enemyMessage.substring(0, enemyMessage.indexOf(';'));
+
+                                switch (enemyAnswer) {
+                                    case "start":
+                                        correctAnswer = true;
+                                        break;
+                                    case "pudło":
+                                        correctAnswer = true;
+                                        displayController.getEnemyBoardController().markWater(yourFieldChoice);
+                                        break;
+                                    case "trafiony":
+                                        correctAnswer = true;
+                                        displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                                        break;
+                                    case "trafiony zatopiony":
+                                        correctAnswer = true;
+                                        displayController.getEnemyBoardController().markShip(yourFieldChoice);
+                                        break;
+                                }
+
+                                enemyFieldChoice = enemyMessage.substring(enemyMessage.indexOf(';') + 1);
+
+                                if (enemyFieldChoice.length() >= 2 && enemyFieldChoice.charAt(0) >= 'A' && enemyFieldChoice.charAt(0) <= 'J') try {
+                                    int col = Integer.parseInt(enemyFieldChoice.substring(1));
+                                    if (col >= 1 && col <= 10) correctCell = true;
+                                }
+                                catch (NumberFormatException ignore) {}
+
+                                correctMessage = correctCell && correctAnswer;
+                            }
+                        }
+                        catch (SocketTimeoutException ignore) {}
+
+                        if (!correctMessage) {
+                            writer.println(yourMessage);
+                            displayController.addHistoryMessage("YOU: " + yourMessage);
+                            displayController.draw();
+                        }
+
                     }
 
-                    enemyFieldChoice = message.substring(message.indexOf(';') + 1);
-                    displayController.getPlayerBoardController().markShot(enemyFieldChoice);
+                    if (!correctMessage) {
+                        displayController.setStatusLine("Błąd komunikacji");
+                        shouldEndGame = true;
+                    }
+                    else if (shouldEndGame) displayController.setStatusLine("Wygrana");
+                    else {
+                        displayController.getPlayerBoardController().markShot(enemyFieldChoice);
+                        displayController.setStatusLine("Your turn");
+                    }
 
-                    displayController.setStatusLine("Your turn");
                     displayController.draw();
                     yourTurn = true;
                 }
