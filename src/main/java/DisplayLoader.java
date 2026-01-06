@@ -64,41 +64,46 @@ public class DisplayLoader {
         screenMiddle.setComponents(new TUIC[]{logoFrame, boards, statusFrame});
         screenMiddle.setSpacing(1);
 
-        StringListTUIC chat = new StringListTUIC(29, 25);
+        StringListTUIC history = new StringListTUIC(29, 25);
 
-        PadPaneTUIC chatPadding = new PadPaneTUIC();
-        chatPadding.setComponent(chat);
-        chatPadding.setPadding(1);
+        PadPaneTUIC historyPadding = new PadPaneTUIC();
+        historyPadding.setComponent(history);
+        historyPadding.setPadding(1);
 
-        FrameTUIC chatFrame = new FrameTUIC();
-        chatFrame.setContents(chatPadding);
-        chatFrame.setFrameStyle(frameStyle);
-        chatFrame.setTitle("Chat");
+        FrameTUIC historyFrame = new FrameTUIC();
+        historyFrame.setContents(historyPadding);
+        historyFrame.setFrameStyle(frameStyle);
+        historyFrame.setTitle("History");
 
         // SpacerTUIC filler = new SpacerTUIC(33, 29);
 
-        StringListTUIC actions = new StringListTUIC(20, 25);
+        StringListTUIC controls = new StringListTUIC(20, 25);
+        controls.addEntry("W      -  UP");
+        controls.addEntry("A      -  LEFT");
+        controls.addEntry("S      -  DOWN");
+        controls.addEntry("D      -  RIGHT");
+        controls.addEntry("ENTER  -  SHOOT");
 
-        PadPaneTUIC actionsPadding = new PadPaneTUIC();
-        actionsPadding.setComponent(actions);
-        actionsPadding.setPadding(1);
+        PadPaneTUIC controlsPadding = new PadPaneTUIC();
+        controlsPadding.setComponent(controls);
+        controlsPadding.setPadding(1);
 
-        FrameTUIC actionsFrame = new FrameTUIC();
-        actionsFrame.setContents(actionsPadding);
-        actionsFrame.setFrameStyle(frameStyle);
-        actionsFrame.setTitle("History");
+        FrameTUIC controlsFrame = new FrameTUIC();
+        controlsFrame.setContents(controlsPadding);
+        controlsFrame.setFrameStyle(frameStyle);
+        controlsFrame.setTitle("Controls");
 
         HBoxTUIC root = new HBoxTUIC();
         root.setSpacing(1);
-        root.setComponents(new TUIC[]{chatFrame, screenMiddle, actionsFrame});
+        root.setComponents(new TUIC[]{historyFrame, screenMiddle, controlsFrame});
 
         controller = new DisplayController();
 
         controller.setPlayerBoardTUIC(yourBoard);
         controller.setEnemyBoardTUIC(enemyBoard);
-        controller.setHistoryTUIC(actions);
+        controller.setControlsTUIC(controls);
         controller.setRootTUIC(root);
-        controller.setChatTUIC(chat);
+        controller.setHistoryTUIC(history);
         controller.setStatusTUIC(status);
 
         BoardController playerBoardController = new BoardController();

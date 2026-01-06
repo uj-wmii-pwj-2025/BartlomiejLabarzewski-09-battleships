@@ -103,7 +103,7 @@ public class ServerGame {
 
                     String message = messageBuilder.toString();
 
-                    displayController.addChatMessage("YOU: " + message);
+                    displayController.addHistoryMessage("YOU: " + message);
                     displayController.setStatusLine("Enemy turn");
                     displayController.draw();
 
@@ -112,7 +112,7 @@ public class ServerGame {
                 }
                 else {
                     String message = reader.readLine();
-                    displayController.addChatMessage("ENM: " + message);
+                    displayController.addHistoryMessage("ENM: " + message);
 
                     enemyAnswer = message.substring(0, message.indexOf(';'));
                     switch (enemyAnswer) {
