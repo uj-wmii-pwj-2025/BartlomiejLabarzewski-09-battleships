@@ -1,10 +1,15 @@
 import controllers.DisplayController;
+import locales.EnglishLocale;
+import locales.Locale;
+import locales.PolishLocale;
 import tuic.*;
 
 import java.io.*;
 import java.nio.file.Paths;
 
 public class Main {
+
+    private static Locale LOCALE = new PolishLocale();
 
     private static ApplicationMode mode;
     private static int port;
@@ -49,7 +54,7 @@ public class Main {
             throw new RuntimeException("Map file is not readable!");
         }
 
-        DisplayLoader displayLoader = new DisplayLoader();
+        DisplayLoader displayLoader = new DisplayLoader(LOCALE);
         TUIC display = displayLoader.load();
         DisplayController displayController = displayLoader.getController();
 
@@ -66,7 +71,7 @@ public class Main {
             throw new RuntimeException("Failed to load map: " + mapFile.getAbsolutePath(), e);
         }
 
-        Game game = new Game(displayController, mode, map, hostName, port);
+        Game game = new Game(displayController, mode, map, hostName, port, LOCALE);
         game.start();
 
     }

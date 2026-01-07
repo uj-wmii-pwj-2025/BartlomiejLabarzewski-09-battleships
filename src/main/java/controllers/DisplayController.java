@@ -10,6 +10,7 @@ public class DisplayController {
     private BoardTUIC enemyBoardTUIC;
     private StringListTUIC historyTUIC;
     private StringListTUIC controlsTUIC;
+    private StringListTUIC messagesTUIC = null;
     private LabelTUIC statusTUIC;
     private BoardController playerBoardController;
     private BoardController enemyBoardController;
@@ -22,9 +23,11 @@ public class DisplayController {
         this.enemyBoardTUIC = enemyBoardTUIC;
     }
 
-    public void setControlsTUIC(StringListTUIC historyTUIC) {
+    public void setControlsTUIC(StringListTUIC controlsTUIC) {
         this.controlsTUIC = controlsTUIC;
     }
+
+    public void setMessagesTUIC(StringListTUIC messagesTUIC) {this.messagesTUIC = messagesTUIC;}
 
     public void setHistoryTUIC(StringListTUIC historyTUIC) {
         this.historyTUIC = historyTUIC;
@@ -70,9 +73,11 @@ public class DisplayController {
         statusTUIC.setLine(line);
     }
 
-    public void addHistoryMessage(String message) {
+    public void addHistoryEntry(String message) {
         historyTUIC.addEntry(message);
     }
+
+    public void addMessageEntry(String message) {if (messagesTUIC != null) messagesTUIC.addEntry(message);}
 
     public void addControlsEntry(String entry) {
         controlsTUIC.addEntry(entry);

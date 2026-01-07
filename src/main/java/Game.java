@@ -1,4 +1,6 @@
 import controllers.DisplayController;
+import locales.Locale;
+import locales.PolishLocale;
 import map.Board;
 import map.BoardObjectCell;
 import misc.Coordinates;
@@ -21,13 +23,15 @@ public class Game {
     String hostName;
     int port;
     int READ_TIMEOUT = 3000;
+    Locale locale;
 
-    public Game(DisplayController displayController, ApplicationMode mode, char[][] map, String hostName, int port) {
+    public Game(DisplayController displayController, ApplicationMode mode, char[][] map, String hostName, int port, Locale locale) {
         this.mode = mode;
         this.displayController = displayController;
         this.map = map;
         this.hostName = hostName;
         this.port = port;
+        this.locale = locale;
     }
 
     public void start() {
@@ -45,6 +49,39 @@ public class Game {
         displayController.setPlayerBoard(new Board(map, 10, 10));
         displayController.setEnemyBoard(new Board(10, 10));
         displayController.setChosenField("A1");
+    }
+
+    public String generateAttackHistory(String cell, boolean yours) {
+        if (yours) return locale.yourShot(cell);
+        else return locale.enemyShot(cell);
+    }
+
+    public String generateResultHistory(String answer, boolean yours) {
+        if (answer.equals("start")) {
+            return locale.start();
+        }
+        if (yours) {
+            if (answer.equals("ostatni zatopiony")) {
+                return locale.enemyShotSunkLast();
+            }
+            return switch (answer) {
+                case "pudło" -> locale.enemyMiss();
+                case "trafiony" -> locale.enemyShotUnsunk();
+                case "trafiony zatopiony" -> locale.enemyShotSunk();
+                default -> "Niemożliwe!";
+            };
+        }
+        else {
+            if (answer.equals("ostatni zatopiony")) {
+                return locale.yourShotSunkLast();
+            }
+            return switch (answer) {
+                case "pudło" -> locale.yourMiss();
+                case "trafiony" -> locale.yourShotUnsunk();
+                case "trafiony zatopiony" -> locale.yourShotSunk();
+                default -> "Niemożliwe!";
+            };
+        }
     }
 
     public String generateAnswer(boolean firstTurn, String enemyCellChoice) {
@@ -95,11 +132,11 @@ public class Game {
 
     public String getCharName(char ch) {
         return switch (ch) {
-            case 'w' -> "UP";
-            case 'a' -> "LEFT";
-            case 's' -> "DOWN";
-            case 'd' -> "RIGHT";
-            case '\r' -> "ENTER";
+            case 'w' -> locale.up();
+            case 'a' -> locale.left();
+            case 's' -> locale.down();
+            case 'd' -> locale.right();
+            case '\r' -> locale.shoot();
             default -> "???";
         };
     }
@@ -180,10 +217,12 @@ public class Game {
                 StringBuilder messageBuilder = new StringBuilder();
 
                 String answer = generateAnswer(firstTurn, enemyFieldChoice);
+                displayController.addHistoryEntry(generateResultHistory(answer, true));
+                displayController.draw();
                 messageBuilder.append(answer);
 
                 if (answer.equals("ostatni zatopiony")) {
-                    displayController.setStatusLine("Przegrana");
+                    displayController.setStatusLine(locale.lose());
                     shouldEndGame = true;
                 }
 
@@ -202,13 +241,14 @@ public class Game {
 
                     yourFieldChoice = displayController.getEnemyBoardController().getChosenCell();
                     displayController.getEnemyBoardController().markShot(yourFieldChoice);
+                    displayController.addHistoryEntry(generateAttackHistory(yourFieldChoice, true));
                     messageBuilder.append(yourFieldChoice);
 
-                    displayController.setStatusLine("Enemy turn");
+                    displayController.setStatusLine(locale.enemyTurn());
                 }
 
                 yourMessage = messageBuilder.toString();
-                displayController.addHistoryMessage("YOU: " + yourMessage);
+                displayController.addMessageEntry(locale.you() + " : " + yourMessage);
                 displayController.draw();
                 networkWriter.println(yourMessage);
                 yourTurn = false;
@@ -237,22 +277,23 @@ public class Game {
                     }
                     else {
                         networkWriter.println(yourMessage);
-                        displayController.addHistoryMessage("YOU: " + yourMessage);
+                        displayController.addMessageEntry(locale.you() + " : " + yourMessage);
                         displayController.draw();
                     }
                 }
 
                 if (!received) {
-                    displayController.setStatusLine("Błąd komunikacji");
+                    displayController.setStatusLine(locale.communicationError());
                     shouldEndGame = true;
                 }
 
                 else {
-                    displayController.addHistoryMessage("ENM: " + enemyMessage);
+                    displayController.addMessageEntry(locale.enm() + " : " + enemyMessage);
 
                     if (enemyMessage.equals("ostatni zatopiony")) {
                         displayController.getEnemyBoardController().markShip(yourFieldChoice);
-                        displayController.setStatusLine("Wygrana");
+                        displayController.setStatusLine(locale.win());
+                        displayController.addHistoryEntry(generateResultHistory(enemyMessage, false));
                         shouldEndGame = true;
                     }
                     else if (enemyMessage.indexOf(';') != -1) {
@@ -274,7 +315,9 @@ public class Game {
 
                         enemyFieldChoice = enemyMessage.substring(enemyMessage.indexOf(';') + 1);
                         displayController.getPlayerBoardController().markShot(enemyFieldChoice);
-                        displayController.setStatusLine("Your turn");
+                        displayController.addHistoryEntry(generateResultHistory(enemyAnswer, false));
+                        displayController.addHistoryEntry(generateAttackHistory(enemyFieldChoice, false));
+                        displayController.setStatusLine(locale.yourTurn());
                         yourTurn = true;
 
                     }

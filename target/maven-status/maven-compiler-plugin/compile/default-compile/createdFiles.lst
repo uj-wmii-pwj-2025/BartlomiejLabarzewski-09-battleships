@@ -1,5 +1,6 @@
 tuic/VBoxTUIC.class
 map/BoardObjectCell.class
+locales/EnglishLocale.class
 framestyle/ThickFrameStyle.class
 tuic/FrameTUIC.class
 map/BoardCellStyle.class
@@ -17,6 +18,7 @@ DisplayLoader.class
 tuic/CenteringPaneTUIC.class
 MapLoader.class
 map/EnemyBoardCellStyle.class
+locales/PolishLocale.class
 CommandParser.class
 tuic/HBoxTUIC.class
 misc/Coordinates.class
