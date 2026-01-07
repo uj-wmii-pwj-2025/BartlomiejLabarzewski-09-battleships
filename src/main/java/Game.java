@@ -191,8 +191,7 @@ public class Game {
         NonBlockingReader terminalReader = terminal.reader();
 
         PrintWriter networkWriter = new PrintWriter(socket.getOutputStream(), true);
-        InputStream socketIn = socket.getInputStream();
-        BufferedReader networkReader = new BufferedReader(new InputStreamReader(socketIn));
+        BufferedReader networkReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         initializeDisplay();
         displayController.draw();

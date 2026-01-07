@@ -19,7 +19,6 @@ tuic/CenteringPaneTUIC.class
 MapLoader.class
 map/EnemyBoardCellStyle.class
 locales/PolishLocale.class
-CommandParser.class
 tuic/HBoxTUIC.class
 misc/Coordinates.class
 tuic/BoardTUIC.class
