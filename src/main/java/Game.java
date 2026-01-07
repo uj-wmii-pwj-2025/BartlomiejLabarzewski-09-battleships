@@ -218,11 +218,16 @@ public class Game {
                 String enemyMessage = null;
                 boolean received = false;
 
+                // Flushing the stream, perhaps getting the message
+                while (networkReader.ready()) {
+                    String receivedMessage = networkReader.readLine();
+                    if (receivedMessage == null) /* The enemy closed the connection */ {
+                        break;
+                    }
+                }
+
                 for (int i = 0; i < 3 && !received; i++) {
                     try {
-                        while (socketIn.available() > 0) {
-                            networkReader.readLine();
-                        }
                         enemyMessage = networkReader.readLine();
                     }
                     catch (SocketTimeoutException ignore) {}
